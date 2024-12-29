@@ -2,56 +2,86 @@
 
 namespace TagCloud.CloudLayouterPainters
 {
-    // Класс, со старого задания TagCloud,
-    // Который отрисовывает прямоугольники.
-    // В текущей реализации размер изображения определяется автоматически,
-    // А первый поставленный прямоугольник всегда находится в центре изображения
     internal class CloudLayouterPainter(
+        Size imageSize,
         Color? backgroundColor = null,
-        Color? rectangleBorderColor = null,
-        int? paddingPerSide = null) : ICloudLayouterPainter
+        Color? textColor = null,
+        string? fontName = null) : ICloudLayouterPainter
     {
-        private readonly int paddingPerSide = paddingPerSide ?? 10;
         private readonly Color backgroundColor = backgroundColor ?? Color.White;
-        private readonly Color rectangleBorderColor = rectangleBorderColor ?? Color.Black;
+        private readonly Color textColor = textColor ?? Color.Black;
+        private readonly string fontName = fontName ?? "Arial";
 
-        public Bitmap Draw(IList<Rectangle> rectangles)
+        public Bitmap Draw(IList<Tag> tags)
         {
-            if (rectangles.Count == 0)
+            ArgumentNullException.ThrowIfNull(tags);
+
+            if (tags.Count == 0)
             {
-                throw new ArgumentException("Список прямоугольников пуст.");
+                throw new ArgumentException("Список тегов пуст");
             }
 
-            var minimums = new Point(rectangles.Min(r => r.Left), rectangles.Min(r => r.Top));
-            var maximums = new Point(rectangles.Max(r => r.Right), rectangles.Max(r => r.Bottom));
-
-            var imageSize = GetImageSize(minimums, maximums, paddingPerSide);
             var result = new Bitmap(imageSize.Width, imageSize.Height);
 
             using var graphics = Graphics.FromImage(result);
             graphics.Clear(backgroundColor);
-            using var pen = new Pen(rectangleBorderColor, 1);
-            for (var i = 0; i < rectangles.Count; i++)
+
+            foreach (var tag in tags)
             {
-                var positionOnCanvas = GetPositionOnCanvas(
-                    rectangles[i],
-                    minimums,
-                    paddingPerSide);
-                graphics.DrawRectangle(
-                    pen,
+                var positionOnCanvas = GetPositionOnCanvas(tag.Rectangle);
+                var rectOnCanvas = new Rectangle(
                     positionOnCanvas.X,
                     positionOnCanvas.Y,
-                    rectangles[i].Width,
-                    rectangles[i].Height);
+                    tag.Rectangle.Width,
+                    tag.Rectangle.Height);
+                DrawText(graphics, rectOnCanvas, tag.Text);
             }
 
             return result;
         }
 
-        private Point GetPositionOnCanvas(Rectangle rectangle, Point minimums, int padding)
-            => new Point(rectangle.X - minimums.X + padding, rectangle.Y - minimums.Y + padding);
+        private Point GetPositionOnCanvas(Rectangle rectangle)
+            => new Point(rectangle.X + imageSize.Width / 2, rectangle.Y + imageSize.Height / 2);
 
-        private Size GetImageSize(Point minimums, Point maximums, int paddingPerSide)
-            => new Size(maximums.X - minimums.X + 2 * paddingPerSide, maximums.Y - minimums.Y + 2 * paddingPerSide);
+        private void DrawText(Graphics graphics, Rectangle rectangle, string text)
+        {
+            var fontSize = FindFittingFontSize(graphics, text, rectangle);
+            var fittingFont = new Font(fontName, fontSize, FontStyle.Regular, GraphicsUnit.Pixel);
+
+            using var stringFormat = new StringFormat
+            {
+                Alignment = StringAlignment.Center,
+                LineAlignment = StringAlignment.Center
+            };
+
+            using var brush = new SolidBrush(textColor);
+            graphics.DrawString(text, fittingFont, brush, rectangle, stringFormat);
+        }
+
+        private int FindFittingFontSize(Graphics graphics, string text, Rectangle rectangle)
+        {
+            var minSize = 1;
+            var maxSize = Math.Min(rectangle.Width, rectangle.Height);
+            var result = minSize;
+
+            while (minSize <= maxSize)
+            {
+                var midSize = (minSize + maxSize) / 2;
+                using var font = new Font(fontName, midSize, FontStyle.Regular, GraphicsUnit.Pixel);
+
+                var textSize = graphics.MeasureString(text, font);
+                if (textSize.Width <= rectangle.Width && textSize.Height <= rectangle.Height)
+                {
+                    result = midSize;
+                    minSize = midSize + 1;
+                }
+                else
+                {
+                    maxSize = midSize - 1;
+                }
+            }
+
+            return result;
+        }
     }
 }
