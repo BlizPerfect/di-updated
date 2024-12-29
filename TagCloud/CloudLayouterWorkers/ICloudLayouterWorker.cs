@@ -2,9 +2,11 @@
 
 namespace TagCloud.CloudLayouterWorkers
 {
-    // Интерфейс получения размера следующего прямоугольника
+    // Интерфейс получения свойств следующего прямоугольника
+    // По хорошему, нужно возвращать IEnumerable<Size>,
+    // для повышения возможности переиспользования
     internal interface ICloudLayouterWorker
     {
-        public IEnumerable<Size> GetNextRectangleSize(int rectanglesCount);
+        public IEnumerable<(string word, Size size)> GetNextRectangleProperties();
     }
 }

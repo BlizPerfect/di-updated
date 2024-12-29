@@ -4,6 +4,7 @@ namespace TagCloud.CloudLayouterWorkers
 {
     // Класс, со старого задания TagCloud,
     // выдающий случайный размер прямоугольника
+    // Оставил его для пары тестов.
     internal class RandomCloudLayouterWorker : ICloudLayouterWorker
     {
         private Random random = new Random();
@@ -38,13 +39,13 @@ namespace TagCloud.CloudLayouterWorkers
             MaxRectangleHeight = maxRectangleHeight;
         }
 
-        public IEnumerable<Size> GetNextRectangleSize(int rectanglesCount)
+        public IEnumerable<(string word, Size size)> GetNextRectangleProperties()
         {
-            for (var i = 0; i < rectanglesCount; i++)
+            while (true)
             {
                 var width = random.Next(MinRectangleWidth, MaxRectangleWidth);
                 var height = random.Next(MinRectangleHeight, MaxRectangleHeight);
-                yield return new Size(width, height);
+                yield return (string.Empty, new Size(width, height));
             }
         }
     }
