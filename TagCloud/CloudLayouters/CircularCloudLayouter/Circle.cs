@@ -2,8 +2,9 @@
 
 namespace TagCloud.CloudLayouters.CircularCloudLayouter
 {
-    internal class Circle(Point center, float startRadius = 2.0f)
+    internal class Circle(float startRadius = 2.0f)
     {
+        private readonly Point center = new Point(0, 0);
         public float Radius { get; set; } = startRadius;
 
         public IEnumerable<Point> GetCoordinatesOnCircle(

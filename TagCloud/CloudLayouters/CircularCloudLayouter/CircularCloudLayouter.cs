@@ -4,10 +4,17 @@ namespace TagCloud.CloudLayouters.CircularCloudLayouter
 {
     // Класс, со старого задания TagCloud,
     // который расставляет прямоугольники по окружности
-    // с постепенно увеличивающимся радиусом
-    internal class CircularCloudLayouter(Point center) : ICloudLayouter
+    // с постепенно увеличивающимся радиусом.
+    // Прямоугольники расставляются вокруг точки с координатой (0, 0),
+    // Затем, в CloudLayouterPainter координат пересыитываются таким образом,
+    // что бы расположить первый прямоугольник в центре холста.
+    // Можно создать интерфейс IShape, который через GetCoordinates
+    // будет возвращать координаты линии формы.
+    // Тогда Circle можно заменить на IShape и ввести новые формы расстановки.
+
+    internal class CircularCloudLayouter : ICloudLayouter
     {
-        private readonly Circle arrangementСircle = new Circle(center);
+        private readonly Circle arrangementСircle = new Circle();
         private readonly Random random = new Random();
         private readonly List<Rectangle> rectangles = new List<Rectangle>();
 
