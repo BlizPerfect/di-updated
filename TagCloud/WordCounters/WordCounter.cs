@@ -3,7 +3,7 @@
     internal class WordCounter : IWordCounter
     {
         private readonly Dictionary<string, uint> counts = new Dictionary<string, uint>();
-        public Dictionary<string, uint> Counts => counts;
+        public Dictionary<string, uint> Values => counts;
 
         public void AddWord(string word)
         {

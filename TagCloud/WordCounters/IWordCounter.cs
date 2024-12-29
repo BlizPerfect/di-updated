@@ -4,6 +4,6 @@
     internal interface IWordCounter
     {
         public void AddWord(string word);
-        public Dictionary<string, uint> Counts { get; }
+        public Dictionary<string, uint> Values { get; }
     }
 }
