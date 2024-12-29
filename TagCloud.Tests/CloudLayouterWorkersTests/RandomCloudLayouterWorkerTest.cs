@@ -9,7 +9,9 @@ namespace TagCloud.Tests.CloudLayouterWorkersTests
         [TestCase(-1, 100)]
         [TestCase(100, 0)]
         [TestCase(100, -1)]
-        public void GetNextRectangleSize_ThrowsArgumentException_OnAnyNegativeOrZeroSize(int width, int height)
+        public void GetNextRectangleSize_ThrowsArgumentException_OnAnyNegativeOrZeroSize(
+            int width,
+            int height)
         {
             Assert.Throws<ArgumentException>(
                 () => new RandomCloudLayouterWorker(width, width, height, height));

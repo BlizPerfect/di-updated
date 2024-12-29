@@ -40,7 +40,7 @@ namespace TagCloud.Tests.WordCountersTests
             {
                 wordCounter.AddWord(value);
             }
-            wordCounter.Counts.Should().BeEquivalentTo(expected);
+            wordCounter.Values.Should().BeEquivalentTo(expected);
         }
     }
 }

@@ -11,12 +11,14 @@ namespace TagCloud.Tests.CloudLayouterTests.CircularCloudLayouterTests
     [TestFixture]
     internal class CircularCloudLayouterMainRequirementsTest
     {
-        private Point center;
-        private List<Rectangle> rectangles;
+        private Point center = new Point();
+        private Rectangle[] rectangles;
+        private List<Tag> tags;
         private readonly string failedTestsDirectory = "FailedTest";
 
         private readonly ImageSaver imageSaver = new ImageSaver();
-        private readonly CloudLayouterPainter cloudLayouterPainter = new CloudLayouterPainter();
+        private readonly CloudLayouterPainter cloudLayouterPainter
+            = new CloudLayouterPainter(new Size(5000, 5000));
 
         [OneTimeSetUp]
         public void Init()
@@ -27,32 +29,37 @@ namespace TagCloud.Tests.CloudLayouterTests.CircularCloudLayouterTests
         [SetUp]
         public void SetUp()
         {
-            center = new Point(400, 400);
             var minRectangleWidth = 30;
             var maxRectangleWidth = 70;
             var minRectangleHeight = 20;
             var maxRectangleHeight = 50;
             var rectanglesCount = 1000;
 
-            rectangles = new List<Rectangle>();
-            var circularCloudLayouter = new CircularCloudLayouter(center);
+            tags = new List<Tag>();
+            var circularCloudLayouter = new CircularCloudLayouter();
 
             var randomWorker = new RandomCloudLayouterWorker(
                 minRectangleWidth,
                 maxRectangleWidth,
                 minRectangleHeight,
                 maxRectangleHeight);
-            foreach (var rectangleSize in randomWorker.GetNextRectangleSize(rectanglesCount))
+            foreach (var rectangleProperty in randomWorker
+                .GetNextRectangleProperties().Take(rectanglesCount))
             {
-                rectangles.Add(circularCloudLayouter.PutNextRectangle(rectangleSize));
+                tags.Add(
+                    new Tag(
+                        rectangleProperty.word,
+                        circularCloudLayouter.PutNextRectangle(rectangleProperty.size)));
             }
+            rectangles = tags.Select(x => x.Rectangle).ToArray();
         }
 
         [TestCase(0.7, 1000)]
         [Repeat(10)]
         public void ShouldPlaceRectanglesInCircle(double expectedCoverageRatio, int gridSize)
         {
-            var maxRadius = rectangles.Max(r => r.GetMaxDistanceFromPointToRectangleAngles(center));
+            var maxRadius = rectangles.Max(
+                x => x.GetMaxDistanceFromPointToRectangleAngles(center));
             var step = 2 * maxRadius / gridSize;
 
             var occupancyGrid = GetOccupancyGrid(gridSize, maxRadius, step);
@@ -79,9 +86,9 @@ namespace TagCloud.Tests.CloudLayouterTests.CircularCloudLayouterTests
         [Repeat(10)]
         public void ShouldPlaceRectanglesWithoutOverlap()
         {
-            for (var i = 0; i < rectangles.Count; i++)
+            for (var i = 0; i < rectangles.Length; i++)
             {
-                for (var j = i + 1; j < rectangles.Count; j++)
+                for (var j = i + 1; j < rectangles.Length; j++)
                 {
                     Assert.That(
                         rectangles[i].IntersectsWith(rectangles[j]) == false,
@@ -102,7 +109,7 @@ namespace TagCloud.Tests.CloudLayouterTests.CircularCloudLayouterTests
 
             var name = $"{TestContext.CurrentContext.Test.Name}.png";
             var path = Path.Combine(failedTestsDirectory, name);
-            imageSaver.SaveFile(cloudLayouterPainter.Draw(rectangles), path);
+            imageSaver.SaveFile(cloudLayouterPainter.Draw(tags), path);
             Console.WriteLine($"Tag cloud visualization saved to file {path}");
         }
 
@@ -123,7 +130,8 @@ namespace TagCloud.Tests.CloudLayouterTests.CircularCloudLayouterTests
             double step)
         {
             var start = (int)((rectangleStartValue - center.X + maxRadius) / step);
-            var end = (int)((rectangleStartValue + rectangleCorrespondingSize - center.X + maxRadius) / step);
+            var end = (int)((rectangleStartValue
+                + rectangleCorrespondingSize - center.X + maxRadius) / step);
             return (start, end);
         }
 

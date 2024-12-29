@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualBasic;
-using TagCloud.WordReaders;
+﻿using TagCloud.WordReaders;
 
 namespace TagCloud.Tests.WordReadersTests
 {
@@ -36,8 +35,16 @@ namespace TagCloud.Tests.WordReadersTests
         public void Init()
         {
             Directory.CreateDirectory(directoryPath);
-            File.WriteAllLines(Path.Combine(directoryPath, fileWithCorrectValuesPath), correctValues);
-            File.WriteAllLines(Path.Combine(directoryPath, fileWithIncorrectValuesPath), incorrectValues);
+            File.WriteAllLines(
+                Path.Combine(
+                    directoryPath,
+                    fileWithCorrectValuesPath),
+                    correctValues);
+            File.WriteAllLines
+                (Path.Combine(
+                    directoryPath,
+                    fileWithIncorrectValuesPath),
+                    incorrectValues);
         }
 
         [SetUp]

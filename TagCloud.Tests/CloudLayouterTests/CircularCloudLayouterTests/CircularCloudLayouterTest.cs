@@ -16,7 +16,7 @@ namespace TagCloud.Tests.CloudLayouterTests.CircularCloudLayouterTests
         {
             var size = new Size(width, height);
             Assert.Throws<ArgumentException>(
-                () => new CircularCloudLayouter(new Point()).PutNextRectangle(size));
+                () => new CircularCloudLayouter().PutNextRectangle(size));
         }
     }
 }

@@ -21,11 +21,11 @@ namespace TagCloud.Tests.ImageSaversTests
             imageSaver = new ImageSaver();
         }
 
-        [TestCase("Test.png")]
+        [TestCase("Test")]
         public void SaveFile_ArgumentNullException_WithNullBitmap(string filename)
         {
             var path = Path.Combine(directoryPath, filename);
-            Assert.Throws<ArgumentNullException>(() => imageSaver.SaveFile(null, path));
+            Assert.Throws<ArgumentNullException>(() => imageSaver.SaveFile(null!, path));
         }
 
         [TestCase(null)]
@@ -34,18 +34,19 @@ namespace TagCloud.Tests.ImageSaversTests
         public void SaveFile_ThrowsArgumentException_WithInvalidFilename(string? filename)
         {
             var dummyImage = new Bitmap(1, 1);
-            Assert.Throws<ArgumentException>(() => imageSaver.SaveFile(dummyImage, filename));
+            Assert.Throws<ArgumentException>(() => imageSaver.SaveFile(dummyImage, filename!));
         }
 
-        [TestCase("Test.png", ExpectedResult = true)]
-        public bool SaveFile_SavesFile(string filename)
+        [TestCase("Test", "png", ExpectedResult = true)]
+        [TestCase("Test", "bmp", ExpectedResult = true)]
+        public bool SaveFile_SavesFile(string filename, string format)
         {
             var dummyImage = new Bitmap(1, 1);
             var path = Path.Combine(directoryPath, filename);
 
             File.Delete(path);
-            imageSaver.SaveFile(dummyImage, path);
-            return File.Exists(path);
+            imageSaver.SaveFile(dummyImage, path, format);
+            return File.Exists($"{path}.{format}");
         }
 
 
