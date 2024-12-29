@@ -2,9 +2,12 @@
 
 namespace TagCloud.ImageSavers
 {
+    // Реализован пункт на перспективу:
+    // Формат результата.
+    // Поддерживать разные форматы изображений.
     internal class ImageSaver : IImageSaver
     {
-        public void SaveFile(Bitmap image, string fileName)
+        public void SaveFile(Bitmap image, string fileName, string format = "png")
         {
             if (image is null)
             {
@@ -16,7 +19,7 @@ namespace TagCloud.ImageSavers
                 throw new ArgumentException("Некорректное имя файла для создания");
             }
 
-            image.Save(fileName, System.Drawing.Imaging.ImageFormat.Png);
+            image.Save($"{fileName}.{format}");
         }
     }
 }
