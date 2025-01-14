@@ -68,12 +68,12 @@ namespace TagCloud
             "wordsToIncludeFile",
             Required = false,
             HelpText = "Имя файла со словами для добавления в фильтр \"скучных слов\".")]
-        public string WordsToIncludeFileName { get; set; } = string.Empty;
+        public string? WordsToIncludeFileName { get; set; } = null;
 
         [Option(
             "wordsToExcludeFile",
             Required = false,
             HelpText = "Имя файла со словами для исключения из фильтра \"скучных слов\".")]
-        public string WordsToExcludeFileName { get; set; } = string.Empty;
+        public string? WordsToExcludeFileName { get; set; } = null;
     }
 }
