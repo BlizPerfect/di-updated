@@ -9,51 +9,60 @@ using TagCloud.WordCounters;
 using TagCloud.WordFilters;
 using TagCloud.WordReaders;
 using TagCloud.Parsers;
+using TagCloud.Factories;
+using System.Drawing;
 
 namespace TagCloud
 {
     public static class DIContainer
     {
-        // 1. Разбить содержимое этого метода на отдельны части
-        // 2. Добавить проверку корректностей значений:
-        //    - options.ImageSize;
-        //    - options.MaxRectangleWidth;
-        //    - options.MaxRectangleHeight;
         public static IContainer ConfigureContainer(CommandLineOptions options)
         {
             var builder = new ContainerBuilder();
 
-            builder
-                .RegisterType<WordReader>()
-                .As<IWordReader>()
-                .SingleInstance();
-
-            builder
-                .RegisterType<WordFilter>()
-                .As<IWordFilter>()
-                .SingleInstance();
-
-            builder
-                .RegisterType<WordCounter>()
-                .As<IWordCounter>()
-                .SingleInstance();
-
-            builder
-                .RegisterType<Normalizer>()
-                .As<INormalizer>()
-                .SingleInstance();
-
-            builder
-                .RegisterType<CircularCloudLayouter>()
-                .As<ICloudLayouter>()
-                .SingleInstance();
-
-            builder
-                .RegisterType<ImageSaver>()
-                .As<IImageSaver>()
-                .SingleInstance();
+            RegisterSimpleSevice<WordReader, IWordReader>(builder);
+            RegisterSimpleSevice<WordFilterFactory>(builder);
+            RegisterIWordFillterSevice(builder, options);
+            RegisterSimpleSevice<WordCounter, IWordCounter>(builder);
+            RegisterSimpleSevice<Normalizer, INormalizer>(builder);
+            RegisterSimpleSevice<CircularCloudLayouter, ICloudLayouter>(builder);
+            RegisterSimpleSevice<ImageSaver, IImageSaver>(builder);
+            RegisterSimpleSevice<CloudLayouterWorkerFactory>(builder);
 
             var imageSize = SizeParser.ParseImageSize(options.ImageSize);
+            RegisterICloudLayouterPainterSevice(builder, options, imageSize);
+
+            RegisterICloudLayouterWorkerSevice(builder, options);
+
+            RegisterProgramExecutorService(builder, options, imageSize);
+
+            return builder.Build();
+        }
+
+        private static void RegisterSimpleSevice<TImplementation, TService>(ContainerBuilder builder)
+            where TImplementation : TService
+            where TService : notnull
+        {
+            builder
+                .RegisterType<TImplementation>()
+                .As<TService>()
+                .SingleInstance();
+        }
+
+        private static void RegisterSimpleSevice<TImplementation>(ContainerBuilder builder)
+            where TImplementation : notnull
+        {
+            builder
+                .RegisterType<TImplementation>()
+                .AsSelf()
+                .SingleInstance();
+        }
+
+        private static void RegisterICloudLayouterPainterSevice(
+            ContainerBuilder builder,
+            CommandLineOptions options,
+            Size imageSize)
+        {
             var backgroundColor = ColorParser.ParseColor(options.BackgroundColor);
             var textColor = ColorParser.ParseColor(options.TextColor);
             var font = FontParser.ParseFont(options.Font);
@@ -64,42 +73,50 @@ namespace TagCloud
                 .WithParameter("textColor", textColor)
                 .WithParameter("fontName", font)
                 .SingleInstance();
+        }
 
-            var isSorted = BoolParser.ParseIsSorted(options.IsSorted);
-            builder.Register((c, p) =>
+        private static void RegisterICloudLayouterWorkerSevice(
+            ContainerBuilder builder,
+            CommandLineOptions options)
+        {
+            builder.Register(c =>
             {
-                var wordReader = c.Resolve<IWordReader>();
-                var wordCounter = c.Resolve<IWordCounter>();
-                var normalizer = c.Resolve<INormalizer>();
-                var wordFilter = c.Resolve<IWordFilter>();
-
-                foreach (var word in wordReader.ReadByLines(options.DataFileName))
-                {
-                    var wordInLowerCase = word.ToLower();
-                    if (!wordFilter.IsCorrectWord(wordInLowerCase))
-                    {
-                        continue;
-                    }
-                    wordCounter.AddWord(wordInLowerCase);
-                }
-
-                var normalizedValues = normalizer.Normalize(wordCounter.Values);
-                return new NormalizedFrequencyBasedCloudLayouterWorker(
+                var factory = c.Resolve<CloudLayouterWorkerFactory>();
+                return factory.Create(
+                    options.DataFileName,
                     options.MaxRectangleWidth,
                     options.MaxRectangleHeight,
-                    normalizedValues,
-                    isSorted);
+                    BoolParser.ParseIsSorted(options.IsSorted));
             }).As<ICloudLayouterWorker>().SingleInstance();
+        }
 
+        private static void RegisterIWordFillterSevice(
+            ContainerBuilder builder,
+            CommandLineOptions options)
+        {
+            builder.Register(c =>
+            {
+                var factory = c.Resolve<WordFilterFactory>();
+                return factory.Create(
+                    options.WordsToIncludeFileName,
+                    options.WordsToExcludeFileName,
+                    c.Resolve<IWordReader>());
+            }).As<IWordFilter>().SingleInstance();
+        }
+
+        private static void RegisterProgramExecutorService(
+            ContainerBuilder builder,
+            CommandLineOptions options,
+            Size imageSize)
+        {
             builder.RegisterType<ProgramExecutor>()
                 .WithParameter("size", imageSize)
+                .WithParameter("resultFormat", options.ResultFormat)
                 .WithParameter("maxRectangleWidth", options.MaxRectangleWidth)
                 .WithParameter("maxRectangleHeight", options.MaxRectangleHeight)
                 .WithParameter("imageFileName", options.ImageFileName)
                 .WithParameter("dataFileName", options.DataFileName)
                 .SingleInstance();
-
-            return builder.Build();
         }
     }
 }
