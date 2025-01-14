@@ -65,7 +65,7 @@
 
         public void Clear() => bannedWords.Clear();
 
-        public HashSet<string> BannedWords => bannedWords;
+        public HashSet<string> BannedWords => bannedWords.ToHashSet();
 
         public bool IsCorrectWord(string word)
         {

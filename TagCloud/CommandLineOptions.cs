@@ -2,10 +2,6 @@
 
 namespace TagCloud
 {
-    // 1. Нужно добавить опцию для указания имени файла,
-    //    который содержит слова, для иссключения из фильтра скучных слов
-    // 2. Нужно добавить опцию для указания имени файла,
-    //    который содержит слова, для добавления в фильтр скучных слов
     public class CommandLineOptions
     {
         [Option(
@@ -67,6 +63,17 @@ namespace TagCloud
             Required = false,
             HelpText = "Формат создаваемого изображение, например png.")]
         public string ResultFormat { get; set; } = "png";
-    }
 
+        [Option(
+            "wordsToIncludeFile",
+            Required = false,
+            HelpText = "Имя файла со словами для добавления в фильтр \"скучных слов\".")]
+        public string WordsToIncludeFileName { get; set; } = string.Empty;
+
+        [Option(
+            "wordsToExcludeFile",
+            Required = false,
+            HelpText = "Имя файла со словами для исключения из фильтра \"скучных слов\".")]
+        public string WordsToExcludeFileName { get; set; } = string.Empty;
+    }
 }
