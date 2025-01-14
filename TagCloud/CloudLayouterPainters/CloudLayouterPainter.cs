@@ -6,11 +6,11 @@ namespace TagCloud.CloudLayouterPainters
         Size imageSize,
         Color? backgroundColor = null,
         Color? textColor = null,
-        string? fontName = null) : ICloudLayouterPainter
+        FontFamily? fontName = null) : ICloudLayouterPainter
     {
         private readonly Color backgroundColor = backgroundColor ?? Color.White;
         private readonly Color textColor = textColor ?? Color.Black;
-        private readonly string fontName = fontName ?? "Arial";
+        private readonly FontFamily fontName = fontName ?? new FontFamily("Arial");
 
         public Bitmap Draw(IList<Tag> tags)
         {
