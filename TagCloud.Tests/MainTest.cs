@@ -47,7 +47,7 @@ namespace TagCloud.Tests
             using var scope = container.BeginLifetimeScope();
             var executor = scope.Resolve<ProgramExecutor>();
 
-            Assert.DoesNotThrow(() => executor.Execute(format));
+            Assert.DoesNotThrow(() => executor.Execute());
 
             File.Exists($"{imageFile}.{format}").Should().BeTrue();
         }

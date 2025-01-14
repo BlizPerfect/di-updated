@@ -13,3 +13,5 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>", Scope = "member", Target = "~M:Program.ParseFont(System.String)~System.String")]
 [assembly: SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>", Scope = "member", Target = "~M:TagCloud.ImageSavers.ImageSaver.SaveFile(System.Drawing.Bitmap,System.String,System.String)")]
 [assembly: SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>", Scope = "member", Target = "~M:TagCloud.Parsers.FontParser.ParseFont(System.String)~System.String")]
+[assembly: SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>", Scope = "member", Target = "~M:TagCloud.Parsers.FontParser.ParseFont(System.String)~System.Drawing.FontFamily")]
+[assembly: SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>", Scope = "member", Target = "~F:TagCloud.CloudLayouterPainters.CloudLayouterPainter.fontName")]

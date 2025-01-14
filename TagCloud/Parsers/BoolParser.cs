@@ -4,9 +4,9 @@
     {
         public static bool ParseIsSorted(string value)
         {
-            if (value == false.ToString() || value == true.ToString())
+            if (value == bool.FalseString || value == bool.TrueString)
             {
-                return value == true.ToString();
+                return Convert.ToBoolean(value);
             }
             throw new ArgumentException($"Неизвестный параметр сортировки {value}");
         }
